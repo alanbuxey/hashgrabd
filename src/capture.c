@@ -44,9 +44,9 @@ int capture(char *interface, char bittorrent, char edonkey) {
 }
 
 void capture_packet(u_char *user, const struct pcap_pkthdr *h, const u_char *bytes) {
-	unsigned char capture_options = *user, ip_version, ip_size, ip_protocol, src_addr[4], dst_addr[4];
-	unsigned short ethernet_protocol, src_port, dst_port, ptr = 0, ip_length, udp_length, tcp_length, payload_length;
-	struct decoded_hash *result, *itr;
+	unsigned char capture_options = *user, ip_version, ip_size, ip_protocol, src_addr[4], dst_addr[4], source;
+	unsigned short ethernet_protocol, src_port, dst_port, ptr = 0, ip_length, udp_length, tcp_length, payload_length = 0;
+	struct decoded_hash *result = NULL, *itr;
 
 	/* Do we have enough data to even have a start to an IP packet? */
 	/* Ether frame is 14 bytes (2 * 6 char + 1 x short) */
@@ -170,11 +170,19 @@ void capture_packet(u_char *user, const struct pcap_pkthdr *h, const u_char *byt
 	/* Analyse it if it's a bittorrent packet.*/
 	if (capture_options & CAPTURE_BITTORRENT) {
 		result = bittorrent_decode(&bytes[ptr], payload_length);	
+
+		if (result) {
+			source = 'b';
+		}
 	}
 
 	/* Analyse it if it's a edonkey packet and bittorrent didn't match anything. */
 	if (!result && capture_options & CAPTURE_EDONKEY) {
 		result = edonkey_decode(&bytes[ptr], payload_length);
+
+		if (result) {
+			source = 'e';
+		}
 	}	
 
 	/* If we still have no result, abort! */	
@@ -184,6 +192,6 @@ void capture_packet(u_char *user, const struct pcap_pkthdr *h, const u_char *byt
 
 	/* Loop through results. */
 	for (itr = result; itr; itr = itr->next) {
-		printf("%ld,%i.%i.%i.%i,%i,%i.%i.%i.%i,%i,%i,%s,%i.%i.%i.%i,%i\n", h->ts.tv_sec, src_addr[0], src_addr[1], src_addr[2], src_addr[3], src_port, dst_addr[0], dst_addr[1], dst_addr[2], dst_addr[3], dst_port, ip_protocol, itr->hash, itr->address[0], itr->address[1], itr->address[2], itr->address[3], itr->port);
+		printf("%ld,%i.%i.%i.%i,%i,%i.%i.%i.%i,%i,%i,%c,%s,%i.%i.%i.%i,%i\n", h->ts.tv_sec, src_addr[0], src_addr[1], src_addr[2], src_addr[3], src_port, dst_addr[0], dst_addr[1], dst_addr[2], dst_addr[3], dst_port, ip_protocol, source, itr->hash, itr->address[0], itr->address[1], itr->address[2], itr->address[3], itr->port);
 	}
 }
