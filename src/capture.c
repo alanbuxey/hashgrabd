@@ -178,7 +178,7 @@ void capture_packet(u_char *user, const struct pcap_pkthdr *h, const u_char *byt
 
 	/* Analyse it if it's a edonkey packet and bittorrent didn't match anything. */
 	if (!result && capture_options & CAPTURE_EDONKEY) {
-		result = edonkey_decode(&bytes[ptr], payload_length);
+		result = edonkey_decode(&bytes[ptr], payload_length, ip_protocol);
 
 		if (result) {
 			source = 'e';
