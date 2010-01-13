@@ -3,7 +3,7 @@
 
 #include "capture.h"
 
-struct decoded_hash *bittorrent_decode(const u_char *buffer, unsigned short length) {
+struct decoded_hash *bittorrent_decode(const u_char *buffer, unsigned short length, unsigned char *dump) {
 	char protocol_length, protocol_ident[20], *hash;
 	unsigned short ptr = 0;
 	struct decoded_hash *output;
@@ -30,6 +30,9 @@ struct decoded_hash *bittorrent_decode(const u_char *buffer, unsigned short leng
 	if (strncasecmp("BitTorrent protocol", protocol_ident, protocol_length) != 0) {
 		return NULL;
 	}
+
+	/* If we're dumping this is a bit torrent packet so dump away. */
+	*dump = 1;
 
 	/* We now do, skip reserved 8 bytes. */
 	ptr += 8;

@@ -4,7 +4,7 @@
 #include "capture.h"
 #include "edonkey.h"
 
-struct decoded_hash *edonkey_decode(const u_char *buffer, unsigned short length, unsigned char protocol) {
+struct decoded_hash *edonkey_decode(const u_char *buffer, unsigned short length, unsigned char protocol, unsigned char *dump) {
 	unsigned char edonkey_id, edonkey_opcode;
 	unsigned short ptr = 0;	
 	unsigned int edonkey_length;
@@ -47,12 +47,16 @@ struct decoded_hash *edonkey_decode(const u_char *buffer, unsigned short length,
                         return head;
                 }
 
+		/* Dump here we have an eDonkey packet. */
+
 		/* Grab the eDonkey opcode. */
 		edonkey_opcode = buffer[ptr];
 		ptr += sizeof(char);
 
 		switch(edonkey_opcode) {
-			case 0x15:
+			case 0x99:
+		*dump = 1;
+
 				tmp = edonkey_decode_search(buffer, length, edonkey_length, protocol, &ptr);
 				break;
 

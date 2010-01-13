@@ -9,13 +9,16 @@
 
 int main (int argc, char *argv[]) {
 	char opt, daemon = 0, edonkey = 0, bittorrent = 0;
-	char *interface = NULL;
+	char *interface = NULL, *file = NULL;
 
-	while ((opt = getopt(argc, argv, "i:debh")) != -1) {
+	while ((opt = getopt(argc, argv, "i:debhf:")) != -1) {
 		switch(opt) {
 			case 'i':
 				interface = strdup(optarg);
 				break;
+
+			case 'f':
+				file = strdup(optarg);
 
 			case 'd':
 				daemon = 1;
@@ -48,7 +51,7 @@ int main (int argc, char *argv[]) {
 		return hashgrab_usage();
 	}
 
-	return capture(interface, bittorrent, edonkey);
+	return capture(interface, bittorrent, edonkey, file);
 }
 
 int hashgrab_usage(void) {
@@ -58,5 +61,6 @@ int hashgrab_usage(void) {
 	warnx("-d             - daemonise this program");
 	warnx("-e             - grab edonkey hashes");
 	warnx("-b             - grab bittorrent hashes");
+	warnx("-f <filename>  - file to capture packets to");
 	return EXIT_FAILURE;
 }

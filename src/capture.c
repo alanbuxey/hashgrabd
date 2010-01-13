@@ -9,7 +9,9 @@
 #include "edonkey.h"
 #include "bittorrent.h"
 
-int capture(char *interface, char bittorrent, char edonkey) {
+pcap_dumper_t *pcap_dumper = NULL;
+
+int capture(char *interface, char bittorrent, char edonkey, char *file) {
 	char pcap_errbuf[PCAP_ERRBUF_SIZE];
 	pcap_t *pcap_handle;
 	int pcap_return;
@@ -28,13 +30,25 @@ int capture(char *interface, char bittorrent, char edonkey) {
 		return EXIT_FAILURE;
 	}
 
+	if (file) {
+		if ((pcap_dumper = pcap_dump_open(pcap_handle, file)) == NULL) {
+			warnx("could not open dump file '%s' - %s", file, pcap_errbuf);
+			return EXIT_FAILURE;
+		}
+	}
+
 	pcap_return = pcap_loop(pcap_handle, 0, capture_packet, (u_char *) &capture_options);
 
 	if (pcap_return == -1) {
 		warnx("pcap returns packet capture failure - %s", pcap_geterr(pcap_handle));
 	} 
 
+	if (pcap_dumper) {
+		pcap_dump_close(pcap_dumper);
+	}
+
 	pcap_close(pcap_handle);
+
 
 	if (pcap_return == -1) {
 		return EXIT_FAILURE;
@@ -44,7 +58,7 @@ int capture(char *interface, char bittorrent, char edonkey) {
 }
 
 void capture_packet(u_char *user, const struct pcap_pkthdr *h, const u_char *bytes) {
-	unsigned char capture_options = *user, ip_version, ip_size, ip_protocol, src_addr[4], dst_addr[4], source;
+	unsigned char capture_options = *user, ip_version, ip_size, ip_protocol, src_addr[4], dst_addr[4], source, dump;
 	unsigned short ethernet_protocol, src_port, dst_port, ptr = 0, ip_length, udp_length, tcp_length, payload_length = 0;
 	struct decoded_hash *result = NULL, *itr;
 
@@ -169,7 +183,14 @@ void capture_packet(u_char *user, const struct pcap_pkthdr *h, const u_char *byt
 
 	/* Analyse it if it's a bittorrent packet.*/
 	if (capture_options & CAPTURE_BITTORRENT) {
-		result = bittorrent_decode(&bytes[ptr], payload_length);	
+		dump = 0;
+
+		result = bittorrent_decode(&bytes[ptr], payload_length, &dump);
+
+		if (dump) {
+			pcap_dump(pcap_dumper, h, bytes);
+			pcap_dump_flush(pcap_dumper);
+		}	
 
 		if (result) {
 			source = 'b';
@@ -178,7 +199,14 @@ void capture_packet(u_char *user, const struct pcap_pkthdr *h, const u_char *byt
 
 	/* Analyse it if it's a edonkey packet and bittorrent didn't match anything. */
 	if (!result && capture_options & CAPTURE_EDONKEY) {
-		result = edonkey_decode(&bytes[ptr], payload_length, ip_protocol);
+		dump = 0;
+
+		result = edonkey_decode(&bytes[ptr], payload_length, ip_protocol, &dump);
+
+		if (dump) {
+			pcap_dump(pcap_dumper, h, bytes);
+			pcap_dump_flush(pcap_dumper);
+		}
 
 		if (result) {
 			source = 'e';

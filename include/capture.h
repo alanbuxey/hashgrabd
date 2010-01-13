@@ -3,7 +3,7 @@
 
 #include <pcap.h>
 
-int capture(char *interface, char bittorrent, char edonkey);
+int capture(char *interface, char bittorrent, char edonkey, char *file);
 void capture_packet(u_char *user, const struct pcap_pkthdr *h, const u_char *bytes);
 
 #define CAPTURE_BITTORRENT 0x01
