@@ -2,7 +2,6 @@
 #include <stdlib.h>
 
 #include "capture.h"
-#include "edonkey.h"
 #include "edonkey_internal.h"
 
 struct decoded_hash *edonkey_decode(const u_char *buffer, unsigned short length, unsigned char protocol, unsigned char *dump) {
@@ -82,16 +81,13 @@ struct decoded_hash *edonkey_decode(const u_char *buffer, unsigned short length,
 			}
 		}
 
-		if (lookup->description) {
-			printf("packets = %i, eDonkey = %i, protocol = %i, size = %i, opcode = %i, desc = %s\n", packets, edonkey_id, protocol, edonkey_length, edonkey_opcode, lookup->description);
-		} else {
-			printf("packets = %i, eDonkey = %i, protocol = %i, size = %i, opcode = %i, desc = UNKNOWN OPCODE\n", packets, edonkey_id, protocol, edonkey_length, edonkey_opcode);
+		/* If we have a function pointer for this opcode, execute it. */
+		if (lookup->pointer) {
+			tmp = lookup->pointer(&buffer[ptr], edonkey_length, edonkey_opcode, protocol, dump);
 		}
 
-		if (lookup->pointer) {
-		} else {
-			ptr += edonkey_length;
-		}
+		/* More the ptr along. */
+		ptr += edonkey_length;
 
 		/* Increase debug packet counter. */
 		packets++;
@@ -100,46 +96,7 @@ struct decoded_hash *edonkey_decode(const u_char *buffer, unsigned short length,
 	return NULL;
 } 
 
-struct decoded_hash *edonkey_decode_search(const u_char *buffer, unsigned short length, unsigned int edonkey_length, unsigned char protocol, unsigned short *ptr) {
-	unsigned int number_results = 1;
-	unsigned short base = *ptr;
-	struct decoded_hash *head = NULL, *tail = NULL;
-	unsigned char address[4];
-	char *hash;
-
-	/* If this is UDP then we do not have a result count, if it's TCP we do. */
-	if (protocol == 0x6) {
-		/* Do we have enough room to check for length. */
-		if (length < (*ptr + sizeof(unsigned int))) {
-			return NULL;
-		}
-
-		/* Copy number of results. */
-		bcopy(&buffer[*ptr], &number_results, sizeof(unsigned int));
-		*ptr += sizeof(unsigned int);
-	}
-	
-	/* Cycle through results, making sure ptr less then the start of this sub packet and the sub packet length. */
-	while (*ptr < (base + edonkey_length)) {
-		/* Do we have enough data for the next 26 bytes of data? */
-		if (length < (*ptr + 26)) {
-			return head;
-		}
-
-		/* Allocate memory for hash and extract. */
-		hash = (char *) malloc(sizeof(char) * 33);
-		snprintf(hash, 33, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x", buffer[*ptr], buffer[*ptr+1], buffer[*ptr+2], buffer[*ptr+3], buffer[*ptr+4], buffer[*ptr+5], buffer[*ptr+6], buffer[*ptr+7], buffer[*ptr+8], buffer[*ptr+9], buffer[*ptr+10], buffer[*ptr+11], buffer[*ptr+12], buffer[*ptr+13], buffer[*ptr+14], buffer[*ptr+15]);
-		*ptr += 16;
-		
-		/* Copy IP address. */
-		bcopy(&buffer[*ptr], &address, sizeof(char) * 4);
-		*ptr += 4;
-
-printf("%s - %i.%i.%i.%i\n", hash, address[0], address[1], address[2], address[3]);
-
-return NULL;
-
-	}	
-
+struct decoded_hash *edonkey_tcp_0x58(const u_char *buffer, unsigned int length, unsigned char opcode, unsigned char protocol, unsigned char *dump) {
 	return NULL;
 }
+

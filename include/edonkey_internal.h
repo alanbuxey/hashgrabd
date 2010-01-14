@@ -1,9 +1,11 @@
 #ifndef __EDONKEY_INTERNAL_H
 #define __EDONKEY_INTERNAL_H 1
 
+#include "edonkey.h"
+
 struct eanimal {
 	char *description;
-	void *pointer;
+	struct decoded_hash *(*pointer)(const u_char *, unsigned int, unsigned char, unsigned char, unsigned char *);
 };
 
 struct eanimal edonkey_tcp_table[] = {
@@ -95,7 +97,7 @@ struct eanimal edonkey_tcp_table[] = {
 	{ "Accept Upload Request", NULL }, /* 0x55 */
 	{ "Cancel Transfer", NULL }, /* 0x56 */
 	{ "Out of Parts Request", NULL }, /* 0x57 */
-	{ "File Request", NULL }, /* 0x58 */
+	{ "File Request", &edonkey_tcp_0x58 }, /* 0x58 */
 	{ "File Request Answer", NULL }, /* 0x59 */
 	{ NULL, NULL }, /* 0x5a */
 	{ "Change Slot", NULL }, /* 0x5b */
