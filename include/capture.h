@@ -24,4 +24,12 @@ struct decoded_hash {
 	hash_name->next = NULL; \
 	} while (0)
 
+#define DESTROY_DECODED_HASH(head, itr) do { \
+	for (itr = head; itr != NULL; itr = head) { \
+		head = itr->next; \
+		free(itr->hash); \
+		free(itr); \
+	} \
+	} while (0)
+
 #endif

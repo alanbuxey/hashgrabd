@@ -3,10 +3,15 @@
 
 #include "capture.h"
 
-struct decoded_hash *bittorrent_decode(const u_char *buffer, unsigned short length, unsigned char *dump) {
+struct decoded_hash *bittorrent_decode(const u_char *buffer, unsigned short length, unsigned char protocol, unsigned char *dump) {
 	char protocol_length, protocol_ident[20], *hash;
 	unsigned short ptr = 0;
 	struct decoded_hash *output;
+
+	/* Announcements we capture are only TCP, reject UDP. */
+	if (protocol == 0x11) {
+		return NULL;
+	}
 
 	/* Can we read the first byte which should be 19 for BT. */
 	if (length < 1) {

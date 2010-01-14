@@ -182,12 +182,12 @@ void capture_packet(u_char *user, const struct pcap_pkthdr *h, const u_char *byt
 	}
 
 	/* Analyse it if it's a bittorrent packet.*/
-	if (capture_options & CAPTURE_BITTORRENT) {
+	if ((capture_options & CAPTURE_BITTORRENT)) {
 		dump = 0;
 
-		result = bittorrent_decode(&bytes[ptr], payload_length, &dump);
+		result = bittorrent_decode(&bytes[ptr], payload_length, ip_protocol, &dump);
 
-		if (dump) {
+		if (dump && pcap_dumper) {
 			pcap_dump(pcap_dumper, h, bytes);
 			pcap_dump_flush(pcap_dumper);
 		}	
@@ -198,12 +198,12 @@ void capture_packet(u_char *user, const struct pcap_pkthdr *h, const u_char *byt
 	}
 
 	/* Analyse it if it's a edonkey packet and bittorrent didn't match anything. */
-	if (!result && capture_options & CAPTURE_EDONKEY) {
+	if (!result && (capture_options & CAPTURE_EDONKEY)) {
 		dump = 0;
 
 		result = edonkey_decode(&bytes[ptr], payload_length, ip_protocol, &dump);
 
-		if (dump) {
+		if (dump && pcap_dumper) {
 			pcap_dump(pcap_dumper, h, bytes);
 			pcap_dump_flush(pcap_dumper);
 		}
@@ -222,4 +222,6 @@ void capture_packet(u_char *user, const struct pcap_pkthdr *h, const u_char *byt
 	for (itr = result; itr; itr = itr->next) {
 		printf("%ld,%i.%i.%i.%i,%i,%i.%i.%i.%i,%i,%i,%c,%s,%i.%i.%i.%i,%i\n", h->ts.tv_sec, src_addr[0], src_addr[1], src_addr[2], src_addr[3], src_port, dst_addr[0], dst_addr[1], dst_addr[2], dst_addr[3], dst_port, ip_protocol, source, itr->hash, itr->address[0], itr->address[1], itr->address[2], itr->address[3], itr->port);
 	}
+
+	DESTROY_DECODED_HASH(result, itr);
 }

@@ -57,9 +57,9 @@ int main (int argc, char *argv[]) {
 int hashgrab_usage(void) {
 	warnx("program usage");
 	warnx("-h             - program usage details");
-        warnx("-i <device>    - device to capture packets from");
+	warnx("-i <device>    - device to capture packets from");
 	warnx("-d             - daemonise this program");
-	warnx("-e             - grab edonkey hashes");
+	warnx("-e             - grab edonkey/emule hashes");
 	warnx("-b             - grab bittorrent hashes");
 	warnx("-f <filename>  - file to capture packets to");
 	return EXIT_FAILURE;
