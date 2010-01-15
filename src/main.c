@@ -17,7 +17,7 @@ int main (int argc, char *argv[]) {
 	unsigned short network_port = 10000;
 	long temp_port;
 	int rv;
-	char *network_host = NULL;
+	char *network_host = NULL, *filter = NULL;
 	char opt, daemon = 0;
 	char *interface = NULL, *file = NULL;
 
@@ -79,6 +79,11 @@ int main (int argc, char *argv[]) {
 	argc -= optind;
 	argv += optind;
 
+	/* If we have a filter we'll need to pass it through. */
+	if (argc > 0) {
+		filter = argv[0];
+	}
+
 	if (!network_host) {
 		network_host = strdup("localhost");
 	}
@@ -108,7 +113,7 @@ int main (int argc, char *argv[]) {
 	}
 
 	/* Execute the main body of the code. */
-	rv = capture(interface, capture_options, file);
+	rv = capture(interface, capture_options, file, filter);
 
 	/* Close down what we need to. */
 	if (capture_options & CAPTURE_NETWORK) {
@@ -130,6 +135,7 @@ int hashgrab_usage(void) {
 	warnx("-n             - print output to network via udp");
 	warnx("-h <hostname>  - hostname to send udp to (default => localhost)");
 	warnx("-p <port>      - port to send udp to (default => 10000)");
+	warnx("\"<filter>\"     - bpf filter to be applied to traffic");
 	return EXIT_FAILURE;
 }
 

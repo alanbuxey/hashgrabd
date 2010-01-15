@@ -3,7 +3,7 @@
 
 #include <pcap.h>
 
-int capture(char *interface, unsigned char capture_options, char *file);
+int capture(char *interface, unsigned char capture_options, char *file, char *filter);
 void capture_packet(u_char *user, const struct pcap_pkthdr *h, const u_char *bytes);
 void sanitize_filename(char *filename, unsigned short length);
 

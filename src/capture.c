@@ -14,13 +14,27 @@
 pcap_dumper_t *pcap_dumper = NULL;
 pcap_t *pcap_handle = NULL;
 
-int capture(char *interface, unsigned char capture_options, char *file) {
+int capture(char *interface, unsigned char capture_options, char *file, char *filter) {
 	char pcap_errbuf[PCAP_ERRBUF_SIZE];
 	int pcap_return;
+	struct bpf_program fp;
 
 	if ((pcap_handle = pcap_open_live(interface, BUFSIZ, 0, 1000, pcap_errbuf)) == NULL) {
 		warnx("could not open device '%s' - %s", interface, pcap_errbuf);
 		return EXIT_FAILURE;
+	}
+
+	/* If we've been given a BPF filter we need to compile it and set it. */
+	if (filter) {
+		if (pcap_compile(pcap_handle, &fp, filter, 0, 0) == -1) {
+			warnx("could not parse filter \"%s\": %s", filter, pcap_geterr(pcap_handle));
+			return EXIT_FAILURE;
+		}
+
+		if (pcap_setfilter(pcap_handle, &fp) == -1) {
+			warnx("could not set filter \"%s\": %s", filter, pcap_geterr(pcap_handle));
+			return EXIT_FAILURE;
+		}
 	}
 
 	if (file) {
