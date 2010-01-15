@@ -45,7 +45,7 @@ struct decoded_hash *edonkey_decode(const u_char *buffer, unsigned short length,
 			bcopy(&buffer[ptr], &edonkey_length, sizeof(unsigned int));
 			ptr += sizeof(unsigned int);
 
-			/* Seem to need to remove a one. */
+			/* Seem to need to remove a one due to opcode being counted. */
 			edonkey_length--;
 		} else {
 			/* Assuming UDP packets, we don't get the edonkey length from the packet, so we must assume from the udp payload length. */
@@ -83,7 +83,9 @@ struct decoded_hash *edonkey_decode(const u_char *buffer, unsigned short length,
 
 		/* If we have a function pointer for this opcode, execute it. */
 		if (lookup->pointer) {
+			*dump = 1;
 			tmp = lookup->pointer(&buffer[ptr], edonkey_length, edonkey_opcode, protocol, dump);
+			APPEND_DECODED_HASH(head, tail, tmp);
 		}
 
 		/* More the ptr along. */
@@ -93,10 +95,75 @@ struct decoded_hash *edonkey_decode(const u_char *buffer, unsigned short length,
 		packets++;
 	}
 
-	return NULL;
+	return head;
 } 
 
 struct decoded_hash *edonkey_tcp_0x58(const u_char *buffer, unsigned int length, unsigned char opcode, unsigned char protocol, unsigned char *dump) {
-	return NULL;
+	char *hash = NULL;
+	unsigned short ptr = 0;
+	struct decoded_hash *output = NULL;
+
+	/* Sanity Check */
+	if (length < 16) {
+		return NULL;
+	}
+
+	/* Allocate memory for and extra hash. */
+	hash = (char *) malloc(sizeof(char) * 33);
+	snprintf(hash, 33, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x", buffer[ptr], buffer[ptr+1], buffer[ptr+2], buffer[ptr+3], buffer[ptr+4], buffer[ptr+5], buffer[ptr+6], buffer[ptr+7], buffer[ptr+8], buffer[ptr+9], buffer[ptr+10], buffer[ptr+11], buffer[ptr+12], buffer[ptr+13], buffer[ptr+14], buffer[ptr+15]);
+
+	/* Create output object. */
+	CREATE_DECODED_HASH(output);
+	output->hash = hash;
+	output->exchange_type = 'r';
+
+	/* Return hash. */
+	return output;
+}
+
+struct decoded_hash *edonkey_tcp_0x59(const u_char *buffer, unsigned int length, unsigned char opcode, unsigned char protocol, unsigned char *dump) {
+        struct decoded_hash *output = NULL, *itr = NULL;
+	unsigned short filename_length;
+	char *filename = NULL;
+
+	/* First bit is the same as the 0x58 opcode. */
+        output = edonkey_tcp_0x58(buffer, length, opcode, protocol, dump);
+
+	/* If above call failed, return now. */
+	if (!output) {
+		return NULL;
+	} else {
+		output->exchange_type = 'o';
+	}
+
+        /* Sanity Check */
+        if (length < 18) {
+		DESTROY_DECODED_HASH(output, itr);
+                return NULL;
+        }
+
+	/* Copy file name length. */
+        bcopy(&buffer[16], &filename_length, sizeof(unsigned short));
+
+	/* Sanity Check */
+	if ((16 + filename_length) > length) {
+		/* We may already have a hash, but really is it safe? */
+		DESTROY_DECODED_HASH(output, itr);
+		return NULL;
+	}
+
+	/* Allocate memory for filename. */
+	filename = (char *) malloc (sizeof(char) * (filename_length + 1));
+	bcopy(&buffer[18], filename, filename_length);
+	filename[filename_length] = '\0';
+
+	/* Clean it up to remove bad chineese characters. */
+	sanitize_filename(filename, filename_length);
+
+	/* Assign it. */
+	output->filename = filename;
+
+        /* Return hash. */
+        return output;
 }
 

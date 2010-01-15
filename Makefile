@@ -2,7 +2,7 @@ RM=/bin/rm
 SUBDIRS=src
 
 LDFLAGS=-Wall -ggdb
-CFLAGS=-Wall -pedantic -O3 -ggdb
+CFLAGS=-Wall -pedantic -O3 -ggdb -ansi
 
 MAKE=make 'CFLAGS=${CFLAGS}' 'LDFLAGS=${LDFLAGS}'
 

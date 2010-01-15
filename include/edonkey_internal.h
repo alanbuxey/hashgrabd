@@ -80,7 +80,7 @@ struct eanimal edonkey_tcp_table[] = {
 	{ NULL, NULL }, /* 0x44 */
 	{ NULL, NULL }, /* 0x45 */
 	{ "Sending File Part", NULL }, /* 0x46 */
-	{ "Request File Parts", NULL }, /* 0x47 */
+	{ "Request File Parts", &edonkey_tcp_0x58 }, /* 0x47 */
 	{ "File Not Found", NULL }, /* 0x48 */
 	{ "End of Download", NULL }, /* 0x49 */
 	{ "View Shared Files", NULL }, /* 0x4a */
@@ -98,7 +98,7 @@ struct eanimal edonkey_tcp_table[] = {
 	{ "Cancel Transfer", NULL }, /* 0x56 */
 	{ "Out of Parts Request", NULL }, /* 0x57 */
 	{ "File Request", &edonkey_tcp_0x58 }, /* 0x58 */
-	{ "File Request Answer", NULL }, /* 0x59 */
+	{ "File Request Answer", &edonkey_tcp_0x59 }, /* 0x59 */
 	{ NULL, NULL }, /* 0x5a */
 	{ "Change Slot", NULL }, /* 0x5b */
 	{ "Queue Rank", NULL }, /* 0x5c */

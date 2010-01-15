@@ -4,26 +4,19 @@
 #include <err.h>
 #include <strings.h>
 #include <netinet/in.h>
+#include <ctype.h>
 
 #include "capture.h"
+#include "network.h"
 #include "edonkey.h"
 #include "bittorrent.h"
 
 pcap_dumper_t *pcap_dumper = NULL;
 
-int capture(char *interface, char bittorrent, char edonkey, char *file) {
+int capture(char *interface, unsigned char capture_options, char *file) {
 	char pcap_errbuf[PCAP_ERRBUF_SIZE];
 	pcap_t *pcap_handle;
 	int pcap_return;
-	char capture_options = 0;
-
-	if (bittorrent) {
-		capture_options |= CAPTURE_BITTORRENT;
-	}
-
-	if (edonkey) {
-		capture_options |= CAPTURE_EDONKEY;
-	}
 
 	if ((pcap_handle = pcap_open_live(interface, BUFSIZ, 0, 1000, pcap_errbuf)) == NULL) {
 		warnx("could not open device '%s' - %s", interface, pcap_errbuf);
@@ -59,6 +52,8 @@ int capture(char *interface, char bittorrent, char edonkey, char *file) {
 
 void capture_packet(u_char *user, const struct pcap_pkthdr *h, const u_char *bytes) {
 	unsigned char capture_options = *user, ip_version, ip_size, ip_protocol, src_addr[4], dst_addr[4], source, dump;
+	char *filename;
+	char text_output[512];
 	unsigned short ethernet_protocol, src_port, dst_port, ptr = 0, ip_length, udp_length, tcp_length, payload_length = 0;
 	struct decoded_hash *result = NULL, *itr;
 
@@ -188,7 +183,7 @@ void capture_packet(u_char *user, const struct pcap_pkthdr *h, const u_char *byt
 		result = bittorrent_decode(&bytes[ptr], payload_length, ip_protocol, &dump);
 
 		if (dump && pcap_dumper) {
-			pcap_dump(pcap_dumper, h, bytes);
+			pcap_dump((u_char *) pcap_dumper, h, bytes);
 			pcap_dump_flush(pcap_dumper);
 		}	
 
@@ -204,7 +199,7 @@ void capture_packet(u_char *user, const struct pcap_pkthdr *h, const u_char *byt
 		result = edonkey_decode(&bytes[ptr], payload_length, ip_protocol, &dump);
 
 		if (dump && pcap_dumper) {
-			pcap_dump(pcap_dumper, h, bytes);
+			pcap_dump((u_char *) pcap_dumper, h, bytes);
 			pcap_dump_flush(pcap_dumper);
 		}
 
@@ -220,8 +215,32 @@ void capture_packet(u_char *user, const struct pcap_pkthdr *h, const u_char *byt
 
 	/* Loop through results. */
 	for (itr = result; itr; itr = itr->next) {
-		printf("%ld,%i.%i.%i.%i,%i,%i.%i.%i.%i,%i,%i,%c,%s,%i.%i.%i.%i,%i\n", h->ts.tv_sec, src_addr[0], src_addr[1], src_addr[2], src_addr[3], src_port, dst_addr[0], dst_addr[1], dst_addr[2], dst_addr[3], dst_port, ip_protocol, source, itr->hash, itr->address[0], itr->address[1], itr->address[2], itr->address[3], itr->port);
+		if (itr->filename) {
+			filename = itr->filename;
+		} else {
+			filename = "unknown";
+		}
+
+		snprintf(text_output, 512, "%ld,%i.%i.%i.%i,%i,%i.%i.%i.%i,%i,%i,%c,%c,%s,%s", (unsigned long) h->ts.tv_sec, src_addr[0], src_addr[1], src_addr[2], src_addr[3], src_port, dst_addr[0], dst_addr[1], dst_addr[2], dst_addr[3], dst_port, ip_protocol, source, itr->exchange_type, itr->hash, filename);
+
+		if (capture_options & CAPTURE_CONSOLE) {
+			printf("%s\n", text_output);
+		}
+
+		if (capture_options & CAPTURE_NETWORK) {
+			network_send(text_output);
+		}
 	}
 
 	DESTROY_DECODED_HASH(result, itr);
+}
+
+void sanitize_filename(char *filename, unsigned short length) {
+	unsigned short i;
+
+	for (i = 0; i < length; i++) {
+		if (!isprint(filename[i])) {
+			filename[i] = '-';
+		}
+	}
 }

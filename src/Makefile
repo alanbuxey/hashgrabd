@@ -3,7 +3,7 @@ CC=gcc
 
 INCLUDEDIR=-I../include
 
-SOURCES=main.c capture.c edonkey.c bittorrent.c
+SOURCES=main.c capture.c edonkey.c bittorrent.c network.c
 OBJECTS=$(SOURCES:.c=.o)
 EXECUTABLE=hashgrab
 

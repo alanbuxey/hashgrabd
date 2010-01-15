@@ -4,7 +4,8 @@
 #include "capture.h"
 
 struct decoded_hash *bittorrent_decode(const u_char *buffer, unsigned short length, unsigned char protocol, unsigned char *dump) {
-	char protocol_length, protocol_ident[20], *hash;
+	char protocol_ident[20], *hash;
+	unsigned char protocol_length;
 	unsigned short ptr = 0;
 	struct decoded_hash *output;
 
