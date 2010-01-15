@@ -12,10 +12,10 @@
 #include "bittorrent.h"
 
 pcap_dumper_t *pcap_dumper = NULL;
+pcap_t *pcap_handle = NULL;
 
 int capture(char *interface, unsigned char capture_options, char *file) {
 	char pcap_errbuf[PCAP_ERRBUF_SIZE];
-	pcap_t *pcap_handle;
 	int pcap_return;
 
 	if ((pcap_handle = pcap_open_live(interface, BUFSIZ, 0, 1000, pcap_errbuf)) == NULL) {
@@ -41,7 +41,6 @@ int capture(char *interface, unsigned char capture_options, char *file) {
 	}
 
 	pcap_close(pcap_handle);
-
 
 	if (pcap_return == -1) {
 		return EXIT_FAILURE;

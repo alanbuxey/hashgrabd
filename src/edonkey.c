@@ -157,7 +157,7 @@ struct decoded_hash *edonkey_tcp_0x59(const u_char *buffer, unsigned int length,
 	bcopy(&buffer[18], filename, filename_length);
 	filename[filename_length] = '\0';
 
-	/* Clean it up to remove bad chineese characters. */
+	/* Clean it up to remove bad none printable characters. */
 	sanitize_filename(filename, filename_length);
 
 	/* Assign it. */

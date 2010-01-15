@@ -5,9 +5,10 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <err.h>
+#include <unistd.h>
 
 int network_fd = 0;
-struct addrinfo *network_destination = NULL;
+struct addrinfo *network_destination = NULL, *head;
 
 int network_setup(char *hostname, unsigned short port) {
 	struct addrinfo hints, *servinfo, *itr;
@@ -27,6 +28,9 @@ int network_setup(char *hostname, unsigned short port) {
 		warnx("could not create socket information: %s", gai_strerror(rv));
 		return -1;
 	}
+
+	/* Store the head address node so it can be free'd later. */
+	head = servinfo;
 
 	/* Loop through results attempting to make a socket. In theory this should make this IPv6 compatable? */
 	for (itr = servinfo; itr != NULL; itr = itr->ai_next) {
@@ -63,4 +67,9 @@ int network_send(char *text) {
 	}
 
 	return 0;
+}
+
+void network_teardown(void) {
+	close(network_fd);
+	freeaddrinfo(head);
 }

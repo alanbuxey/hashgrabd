@@ -7,6 +7,8 @@ int capture(char *interface, unsigned char capture_options, char *file);
 void capture_packet(u_char *user, const struct pcap_pkthdr *h, const u_char *bytes);
 void sanitize_filename(char *filename, unsigned short length);
 
+extern pcap_t *pcap_handle;
+
 #define CAPTURE_BITTORRENT 0x01
 #define CAPTURE_EDONKEY 0x02
 #define CAPTURE_CONSOLE 0x04

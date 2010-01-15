@@ -4,6 +4,8 @@
 #include <string.h>
 #include <err.h>
 #include <limits.h>
+#include <signal.h>
+#include <pcap.h>
 
 #include "main.h"
 #include "capture.h"
@@ -13,9 +15,12 @@ int main (int argc, char *argv[]) {
 	unsigned char capture_options = 0;
 	unsigned short network_port = 10000;
 	long temp_port;
+	int rv;
 	char *network_host = NULL;
 	char opt, daemon = 0;
 	char *interface = NULL, *file = NULL;
+
+	(void) signal(SIGINT, handle_signal);
 
 	while ((opt = getopt(argc, argv, "i:debcf:nh:p:")) != -1) {
 		switch(opt) {
@@ -87,12 +92,21 @@ int main (int argc, char *argv[]) {
 		return hashgrab_usage();
 	}
 
-	if (network_setup(network_host, network_port) != 0) {
+	if ((capture_options & CAPTURE_NETWORK) && (network_setup(network_host, network_port) != 0)) {
 		warnx("could not set up network sending");
 		return hashgrab_usage();
 	}
 
-	return capture(interface, capture_options, file);
+	/* Execute the main body of the code. */
+	rv = capture(interface, capture_options, file);
+
+	/* Close down what we need to. */
+	if (capture_options & CAPTURE_NETWORK) {
+		/* Teardown the network side. */
+		network_teardown();
+	}
+
+	return rv;
 }
 
 int hashgrab_usage(void) {
@@ -107,4 +121,8 @@ int hashgrab_usage(void) {
 	warnx("-h <hostname>  - hostname to send udp to (default => localhost)");
 	warnx("-p <port>      - port to send udp to (default => 10000)");
 	return EXIT_FAILURE;
+}
+
+void handle_signal(int signal) {
+	pcap_breakloop(pcap_handle);	
 }
