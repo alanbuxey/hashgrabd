@@ -6,6 +6,7 @@
 #include <limits.h>
 #include <signal.h>
 #include <pcap.h>
+#include <sys/stat.h>
 
 #include "main.h"
 #include "capture.h"
@@ -97,6 +98,15 @@ int main (int argc, char *argv[]) {
 		return hashgrab_usage();
 	}
 
+	/* Very last thing we do after setup is daemonize. */
+	if (daemon) {
+		rv = daemonize();
+
+		if (rv == EXIT_SUCCESS || rv == EXIT_FAILURE) {
+			return rv;
+		}
+	}
+
 	/* Execute the main body of the code. */
 	rv = capture(interface, capture_options, file);
 
@@ -125,4 +135,38 @@ int hashgrab_usage(void) {
 
 void handle_signal(int signal) {
 	pcap_breakloop(pcap_handle);	
+}
+
+int daemonize(void) {
+	pid_t pid, sid;
+	
+	/* Fork to create other copy of processes. */
+	pid = fork();
+
+	if (pid < 0) {
+		warnx("failed to fork process");
+		return EXIT_FAILURE;
+	} else if (pid > 0) {
+		return EXIT_SUCCESS;
+	}
+
+	/* Remove all file access. */
+	umask(0);
+
+	/* Put daemon in new session. */
+	sid = setsid();
+
+	if (sid < 0) {
+		warnx("failed to change session");
+		return EXIT_FAILURE;
+	}
+
+	/* Move out of current directory to root incase directory needs to be moved or deleted. */
+	if (chdir("/") < 0) {
+		warnx("failed to change working directory");
+		return EXIT_FAILURE;
+	}
+
+	/* Return a value that isn't EXIT_FAILURE or EXIT_SUCCESS */
+	return 1 + EXIT_FAILURE + EXIT_SUCCESS;
 }

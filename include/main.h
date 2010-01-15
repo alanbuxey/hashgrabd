@@ -3,5 +3,6 @@
 
 int hashgrab_usage(void);
 void handle_signal(int signal);
+int daemonize(void);
 
 #endif
