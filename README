@@ -1,0 +1,107 @@
+hashgrabd
+---------
+
+About
+-----
+
+Hashgrabd is a utility designed to obtain the cryptographic hashes that 
+uniquely identify shared files on peer to peer networks. Hashgrabd currently 
+supports the BitTorrent and eDonkey protocols.
+
+Limitations
+-----------
+
+BitTorrent hashes are only obtained the announcement TCP packets, it does not
+monitor sessions that actually transfer data. Only a limited subset of eDonkey
+opcodes are implemented, these are those most likely to contain a useful valid
+hash.
+
+Hashgrabd eDonkey support will ONLY work on i386/AMD64 processors, SPARC or
+other architectures are not support. This will be fixed in a future version.
+
+Outputs
+-------
+
+Hashgrabd can either output to STDOUT or a UDP network socket, each UDP packet
+contains a single line that would have been output via STDOUT.
+
+Compiling
+---------
+
+At current hashgrabd does not have a ./configure script, and should compile
+successfully on most modern operating systems. It has been tested on FreeBSD
+and Linux.
+
+1. Obtain current release of hashgrabd.
+# wget http://github.com/tignetworking/hashgrabd/tarball/current-release
+
+2. Extract current release of hashgrabd, XXXXXXX will very depending on git 
+   commits.
+# tar xvzf tignetworking-hashgrabd-XXXXXXX.tar.gz
+
+3. Build hashgrabd
+# make
+
+The resulting executable should be portable to move into whatever directory you
+require.
+
+Running
+-------
+
+Command-line parameters are listed upon executing the program with no 
+arguements.
+
+hashgrab: program usage
+hashgrabd: -i <device>    - device to capture packets from
+hashgrabd: -d             - daemonise this program
+hashgrabd: -e             - grab edonkey/emule hashes
+hashgrabd: -b             - grab bittorrent hashes
+hashgrabd: -f <filename>  - file to capture packets to
+hashgrabd: -c             - print output to console
+hashgrabd: -n             - print output to network via udp
+hashgrabd: -h <hostname>  - hostname to send udp to (default => localhost)
+hashgrabd: -p <port>      - port to send udp to (default => 10000)
+hashgrabd: "<filter>"     - bpf filter to be applied to traffic
+
+Examples
+--------
+
+* Capture eDonkey only from eth0 and display on screen.
+
+./hashgrabd -e -c -i eth0
+
+* Capture both eDonkey and BitTorrent from eth0 and display on screen.
+
+./hashgrabd -b -e -c -i eth0
+
+* Capture BitTorrent only from eth0, export via UDP and daemonise into 
+  background.
+
+./hashgrabd -b -i eth0 -n -h localhost -p 10000 -d
+
+* Capture BitTorrent and eDonkey packets from eth0 only outgoing from a local
+  private network, exporting via UDP and daemonise into background.
+
+./hashgrabd -b -e -i eth0 -n -h localhost -p 10000 -d "src net 10.0.0.0/8"
+
+See Also
+--------
+
+hashgrab-captured - Perl script to capture from network, store either on
+                    disk or into MySQL database.
+hashgrab-web      - PHP site to read from MySQL database, propulated from
+                    hashgrab-captured.
+
+License
+-------
+Copyright (C) 2010 University of Lancaster
+
+This program is free software: you can redistribute it and/or modify it 
+under the terms of the GNU General Public License as published by 
+the Free Software Foundation, either version 3 of the License, or 
+(at your option) any later version. This program is distributed in the 
+hope that it will be useful, but WITHOUT ANY WARRANTY; without 
+even the implied warranty of MERCHANTABILITY or FITNESS FOR 
+A PARTICULAR PURPOSE. See the GNU General Public License 
+for more details. You should have received a copy of the GNU General 
+Public License along with this program. If not, see <http://www.gnu.org/licenses/>.

@@ -1,5 +1,5 @@
 /*
- * Hashgrab - Utility to capture eDonkey and BitTorrent crytographic hashes from BPF.
+ * Hashgrabd - Utility to capture eDonkey and BitTorrent crytographic hashes from BPF.
  * 
  * Copyright (C) 2010 University of Lancaster
  * 
@@ -39,7 +39,7 @@ int main (int argc, char *argv[]) {
 
 	(void) signal(SIGINT, handle_signal);
 
-	while ((opt = getopt(argc, argv, "i:debcf:nh:p:")) != -1) {
+	while ((opt = getopt(argc, argv, "i:debcf:nh:p:v")) != -1) {
 		switch(opt) {
 			case 'i':
 				interface = strdup(optarg);
@@ -86,6 +86,10 @@ int main (int argc, char *argv[]) {
 
 				network_port = temp_port;
 				break;
+
+			case 'v':
+				warnx("%s (%s)", HASHGRABD_NAME, HASHGRABD_VERSION);
+				return EXIT_SUCCESS;
 
 			default:
 				return hashgrab_usage();
@@ -142,6 +146,7 @@ int main (int argc, char *argv[]) {
 
 int hashgrab_usage(void) {
 	warnx("program usage");
+	warnx("-v             - print current version");
 	warnx("-i <device>    - device to capture packets from");
 	warnx("-d             - daemonise this program");
 	warnx("-e             - grab edonkey/emule hashes");

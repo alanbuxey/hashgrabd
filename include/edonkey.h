@@ -1,5 +1,5 @@
 /*
- * Hashgrab - Utility to capture eDonkey and BitTorrent crytographic hashes from BPF.
+ * Hashgrabd - Utility to capture eDonkey and BitTorrent crytographic hashes from BPF.
  * 
  * Copyright (C) 2010 University of Lancaster
  * 

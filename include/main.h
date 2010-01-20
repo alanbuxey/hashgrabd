@@ -1,5 +1,5 @@
 /*
- * Hashgrab - Utility to capture eDonkey and BitTorrent crytographic hashes from BPF.
+ * Hashgrabd - Utility to capture eDonkey and BitTorrent crytographic hashes from BPF.
  * 
  * Copyright (C) 2010 University of Lancaster
  * 
@@ -16,6 +16,9 @@
 
 #ifndef __MAIN_H
 #define __MAIN_H 1
+
+#define HASHGRABD_NAME "hashgrabd"
+#define HASHGRABD_VERSION "0.1.0"
 
 int hashgrab_usage(void);
 void handle_signal(int signal);
