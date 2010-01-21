@@ -57,9 +57,13 @@ struct decoded_hash *edonkey_decode(const u_char *buffer, unsigned short length,
 			}
 
 			/* There is, copy it. NOTE: the length is already in little endian. */
-			/* TODO - We must convert to host endian incase this runs on a Sparc or similar. */
 			bcopy(&buffer[ptr], &edonkey_length, sizeof(unsigned int));
 			ptr += sizeof(unsigned int);
+
+#ifdef __BIG_ENDIAN__
+			/* If we're on Big Endian, i.e. Sparc, convert to native endian. */
+			length = ((length & 0xff) << 24) + ((length & 0xff00) << 8) + ((length & 0xff0000) >> 8) + ((length >> 24) & 0xff);
+#endif
 
 			/* Seem to need to remove a one due to opcode being counted. */
 			edonkey_length--;
@@ -160,6 +164,11 @@ struct decoded_hash *edonkey_tcp_0x59(const u_char *buffer, unsigned int length,
 
 	/* Copy file name length. */
         bcopy(&buffer[16], &filename_length, sizeof(unsigned short));
+
+#ifdef __BIG_ENDIAN__
+	/* If we're on Big Endian, i.e. Sparc, convert to native endian. */
+	filename_length = ((filename_length & 0xff) << 24) + ((filename_length & 0xff00) << 8) + ((filename_length & 0xff0000) >> 8) + ((filename_length >> 24) & 0xff);
+#endif
 
 	/* Sanity Check */
 	if ((16 + filename_length) > length) {

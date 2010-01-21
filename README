@@ -16,9 +16,6 @@ monitor sessions that actually transfer data. Only a limited subset of eDonkey
 opcodes are implemented, these are those most likely to contain a useful valid
 hash.
 
-Hashgrabd eDonkey support will ONLY work on i386/AMD64 processors, SPARC or
-other architectures are not support. This will be fixed in a future version.
-
 Outputs
 -------
 
