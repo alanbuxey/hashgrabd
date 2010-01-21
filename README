@@ -33,7 +33,7 @@ successfully on most modern operating systems. It has been tested on FreeBSD
 and Linux.
 
 1. Obtain current release of hashgrabd.
-# wget http://github.com/tignetworking/hashgrabd/tarball/current-release
+# wget http://github.com/tignetworking/hashgrabd/tarball/release-current
 
 2. Extract current release of hashgrabd, XXXXXXX will very depending on git 
    commits.
