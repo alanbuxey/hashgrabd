@@ -89,8 +89,16 @@ hashgrab-captured - Perl script to capture from network, store either on
 hashgrab-web      - PHP site to read from MySQL database, propulated from
                     hashgrab-captured.
 
+Authors
+-------
+
+hashgrabd is maintained by the following individuals:
+o Peter Wood <p.wood@lancaster.ac.uk> (Project Lead)
+o Daniel Meyers <d.meyers@lancaster.ac.uk>
+
 License
 -------
+
 Copyright (C) 2010 University of Lancaster
 
 This program is free software: you can redistribute it and/or modify it 
