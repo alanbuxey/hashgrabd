@@ -2,7 +2,7 @@ RM=/bin/rm
 SUBDIRS=src
 
 LDFLAGS=-Wall -ggdb
-CFLAGS=-Wall -pedantic -O3 -ggdb -ansi
+CFLAGS=-Wall -pedantic -ggdb -ansi
 
 MAKE=make 'CFLAGS=${CFLAGS}' 'LDFLAGS=${LDFLAGS}'
 
@@ -24,4 +24,4 @@ clean:
 	done
 
 distclean: clean
-	${RM} -f hashgrab
+	${RM} -f hashgrabd
