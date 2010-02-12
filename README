@@ -52,6 +52,7 @@ hashgrab: program usage
 hashgrabd: -i <device>    - device to capture packets from
 hashgrabd: -d             - daemonise this program
 hashgrabd: -e             - grab edonkey/emule hashes
+hashgrabd: -F             - grab edonkey filename
 hashgrabd: -b             - grab bittorrent hashes
 hashgrabd: -f <filename>  - file to capture packets to
 hashgrabd: -c             - print output to console

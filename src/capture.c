@@ -244,7 +244,7 @@ void capture_packet(u_char *user, const struct pcap_pkthdr *h, const u_char *byt
 
 	/* Loop through results. */
 	for (itr = result; itr; itr = itr->next) {
-		if (itr->filename) {
+		if (itr->filename && (capture_options & CAPTURE_EDONKEY_FILENAME)) {
 			filename = itr->filename;
 		} else {
 			filename = "unknown";

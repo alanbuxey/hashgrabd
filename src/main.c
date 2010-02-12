@@ -39,7 +39,7 @@ int main (int argc, char *argv[]) {
 
 	(void) signal(SIGINT, handle_signal);
 
-	while ((opt = getopt(argc, argv, "i:debcf:nh:p:v")) != -1) {
+	while ((opt = getopt(argc, argv, "i:deFbcf:nh:p:v")) != -1) {
 		switch(opt) {
 			case 'i':
 				interface = strdup(optarg);
@@ -54,6 +54,10 @@ int main (int argc, char *argv[]) {
 
 			case 'e':
 				capture_options |= CAPTURE_EDONKEY;
+				break;
+
+			case 'F':
+				capture_options |= CAPTURE_EDONKEY_FILENAME;
 				break;
 
 			case 'b':
@@ -150,6 +154,7 @@ int hashgrab_usage(void) {
 	warnx("-i <device>    - device to capture packets from");
 	warnx("-d             - daemonise this program");
 	warnx("-e             - grab edonkey/emule hashes");
+	warnx("-F             - grab edonkey filename");
 	warnx("-b             - grab bittorrent hashes");
 	warnx("-f <filename>  - file to capture packets to");
 	warnx("-c             - print output to console");

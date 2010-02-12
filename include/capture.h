@@ -29,6 +29,7 @@ extern pcap_t *pcap_handle;
 #define CAPTURE_EDONKEY 0x02
 #define CAPTURE_CONSOLE 0x04
 #define CAPTURE_NETWORK 0x08
+#define CAPTURE_EDONKEY_FILENAME 0x10
 
 struct decoded_hash {
 	char *hash;
