@@ -39,7 +39,7 @@ struct decoded_hash *edonkey_decode(const u_char *buffer, unsigned short length,
 	}
 
 	/* An eDonkey packet can contain many messages. We need to iterate throguh the entire packet to find them. */
-	while (ptr <= length) {
+	while (ptr < length) {
 		/* Check the start of this subsection is eDonkey. */
 		edonkey_id = buffer[ptr];
 		ptr += sizeof(char);
