@@ -30,6 +30,7 @@ extern pcap_t *pcap_handle;
 #define CAPTURE_CONSOLE 0x04
 #define CAPTURE_NETWORK 0x08
 #define CAPTURE_EDONKEY_FILENAME 0x10
+#define CAPTURE_PROMISC 0x20
 
 struct decoded_hash {
 	char *hash;

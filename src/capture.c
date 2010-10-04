@@ -32,10 +32,14 @@ pcap_t *pcap_handle = NULL;
 
 int capture(char *interface, unsigned char capture_options, char *file, char *filter) {
 	char pcap_errbuf[PCAP_ERRBUF_SIZE];
-	int pcap_return;
+	int pcap_return, promisc = 0;
 	struct bpf_program fp;
 
-	if ((pcap_handle = pcap_open_live(interface, BUFSIZ, 0, 1000, pcap_errbuf)) == NULL) {
+	if (capture_options & CAPTURE_PROMISC){
+		promisc = 1;
+	}
+
+	if ((pcap_handle = pcap_open_live(interface, BUFSIZ, promisc, 1000, pcap_errbuf)) == NULL) {
 		warnx("could not open device '%s' - %s", interface, pcap_errbuf);
 		return EXIT_FAILURE;
 	}

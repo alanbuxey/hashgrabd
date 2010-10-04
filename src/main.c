@@ -39,7 +39,7 @@ int main (int argc, char *argv[]) {
 
 	(void) signal(SIGINT, handle_signal);
 
-	while ((opt = getopt(argc, argv, "i:deFbcf:nh:p:v")) != -1) {
+	while ((opt = getopt(argc, argv, "i:deFbcf:nh:p:vP")) != -1) {
 		switch(opt) {
 			case 'i':
 				interface = strdup(optarg);
@@ -70,6 +70,10 @@ int main (int argc, char *argv[]) {
 
 			case 'n':
 				capture_options |= CAPTURE_NETWORK;
+				break;
+
+			case 'P':
+				capture_options |= CAPTURE_PROMISC;
 				break;
 
 			case 'h':
@@ -152,6 +156,7 @@ int hashgrab_usage(void) {
 	warnx("program usage");
 	warnx("-v             - print current version");
 	warnx("-i <device>    - device to capture packets from");
+	warnx("-P             - set capture device to promiscuous");
 	warnx("-d             - daemonise this program");
 	warnx("-e             - grab edonkey/emule hashes");
 	warnx("-F             - grab edonkey filename");
