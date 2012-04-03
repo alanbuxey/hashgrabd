@@ -48,8 +48,11 @@ Running
 Command-line parameters are listed upon executing the program with no 
 arguements.
 
-hashgrab: program usage
+hashgrabd: no capture interface defined
+hashgrabd: program usage
+hashgrabd: -v             - print current version
 hashgrabd: -i <device>    - device to capture packets from
+hashgrabd: -P             - set capture device to promiscuous
 hashgrabd: -d             - daemonise this program
 hashgrabd: -e             - grab edonkey/emule hashes
 hashgrabd: -F             - grab edonkey filename
